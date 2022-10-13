@@ -83,11 +83,11 @@ def main():
 
     today = datetime.now(tz=TZ_INFO).date()
     start, end = calc_day_start_and_end(day=today, tzinfo=TZ_INFO)
-    print(f'Fetching grass info from {start} to {end}')
+    print(f'[*] Fetching grass info from {start} to {end}')
 
     client = GithubApiClient(token, username)
     grass_info = client.fetch_grass_total(start, end)
-    print(f'grass_info: {grass_info}')
+    print(f'[*] grass_info: {grass_info}')
 
     webhook_id = os.environ['DISCORD_WEBHOOK_ID']
     webhook_token = os.environ['DISCORD_WEBHOOK_TOKEN']
