@@ -51,10 +51,10 @@ class GithubApiClient:
         return c['contributionCalendar']['totalContributions']
 
 
-def calc_day_start_and_end(day: date):
-    day_start = datetime.combine(day, time.min, tzinfo=TZ_INFO)
+def calc_day_start_and_end(day: date, tzinfo):
+    day_start = datetime.combine(day, time.min, tzinfo=tzinfo)
     day_start = day_start.isoformat()
-    day_end = datetime.combine(day, time.max, tzinfo=TZ_INFO)
+    day_end = datetime.combine(day, time.max, tzinfo=tzinfo)
     day_end = day_end.isoformat()
     return day_start, day_end
 
@@ -76,20 +76,32 @@ class DiscordWebhookClient:
 
 
 def main():
+    ENV = os.environ.get('ENV', 'dev').lower()
+
     token = os.environ['GITHUB_TOKEN']
     username = os.environ['GITHUB_USERNAME']
 
-    start, end = calc_day_start_and_end(day=date.today())
+    today = datetime.now(tz=TZ_INFO).date()
+    start, end = calc_day_start_and_end(day=today, tzinfo=TZ_INFO)
+    print(f'Fetching grass info from {start} to {end}')
 
     client = GithubApiClient(token, username)
     grass_info = client.fetch_grass_total(start, end)
+    print(f'grass_info: {grass_info}')
 
     webhook_id = os.environ['DISCORD_WEBHOOK_ID']
     webhook_token = os.environ['DISCORD_WEBHOOK_TOKEN']
     client = DiscordWebhookClient(webhook_id, webhook_token)
 
+    if ENV == 'dev':
+        client.send(f'[*] grass_info: {grass_info}')
+
     if grass_info == 0:
         client.send('今日はまだ草生やしてないよ')
+
+
+def handler(event, context):
+    main()
 
 
 if __name__ == '__main__':
