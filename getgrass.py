@@ -74,8 +74,10 @@ class DiscordWebhookClient:
         if res.status_code != 204:
             raise Exception('Failed to send message')
 
-if __name__ == '__main__':
+
+def main():
     read_env()
+
     token = os.environ['GITHUB_TOKEN']
     username = os.environ['GITHUB_USERNAME']
 
@@ -90,3 +92,8 @@ if __name__ == '__main__':
 
     if grass_info == 0:
         client.send('今日はまだ草生やしてないよ')
+
+
+if __name__ == '__main__':
+    read_env()
+    main()
