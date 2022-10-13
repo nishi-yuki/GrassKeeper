@@ -66,6 +66,21 @@ def calc_today_start_and_end():
     return today_start, today_end
 
 
+class DiscordWebhookClient:
+    endpoint = 'https://discord.com/api/webhooks/{webhook_id}/{webhook_token}'
+
+    def __init__(self, webhook_id, webhook_token):
+        self.endpoint = self.endpoint.format(
+            webhook_id=webhook_id, webhook_token=webhook_token)
+
+    def send(self, content):
+        headers = {'Content-Type': 'application/json'}
+        payload = {'content': content}
+        res = requests.post(
+            self.endpoint, headers=headers, data=json.dumps(payload))
+        if res.status_code != 204:
+            raise Exception('Failed to send message')
+
 if __name__ == '__main__':
     read_env()
     token = os.environ['GITHUB_TOKEN']
@@ -74,4 +89,10 @@ if __name__ == '__main__':
 
     client = GithubApiClient(token, username)
     grass_info = client.fetch_grass_total(start, end)
-    print(grass_info)
+
+    webhook_id = os.environ['DISCORD_WEBHOOK_ID']
+    webhook_token = os.environ['DISCORD_WEBHOOK_TOKEN']
+    client = DiscordWebhookClient(webhook_id, webhook_token)
+
+    if grass_info == 0:
+        client.send('今日はまだ草生やしてないよ')
