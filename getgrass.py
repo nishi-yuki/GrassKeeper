@@ -35,7 +35,7 @@ class GithubApiClient:
         self.username = username
 
     def fetch_grass_info(self, fromdate, todate):
-        variables = {'userName': username, 'from': fromdate, 'to': todate}
+        variables = {'userName': self.username, 'from': fromdate, 'to': todate}
         variables = json.dumps(variables)
         payload = {'query': self.query, 'variables': variables}
 
