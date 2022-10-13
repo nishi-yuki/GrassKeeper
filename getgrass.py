@@ -76,8 +76,6 @@ class DiscordWebhookClient:
 
 
 def main():
-    read_env()
-
     token = os.environ['GITHUB_TOKEN']
     username = os.environ['GITHUB_USERNAME']
 
