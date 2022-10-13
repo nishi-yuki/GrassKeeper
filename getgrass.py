@@ -1,7 +1,6 @@
 from datetime import datetime, date, time, timezone, timedelta
 import os
 import json
-import sys
 import requests
 
 
