@@ -24,12 +24,6 @@ class GithubApiClient:
         contributionsCollection (from: $from, to: $to) {
           contributionCalendar {
             totalContributions
-            weeks {
-              contributionDays {
-                contributionCount
-                date
-              }
-            }
           }
         }
       }
