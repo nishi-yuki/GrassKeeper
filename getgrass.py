@@ -23,6 +23,7 @@ class GithubApiClient:
       user(login: $userName){
         contributionsCollection (from: $from, to: $to) {
           contributionCalendar {
+            totalContributions
             weeks {
               contributionDays {
                 contributionCount
@@ -47,7 +48,13 @@ class GithubApiClient:
         res = requests.post(self.endpoint, headers=self.headers,
                             data=json.dumps(payload))
         res = res.json()
-        print(json.dumps(res, indent=2))
+        # print(json.dumps(res, indent=2))
+        return res
+
+    def fetch_grass_total(self, fromdate, todate):
+        res = self.fetch_grass_info(fromdate, todate)
+        c = res['data']['user']['contributionsCollection']
+        return c['contributionCalendar']['totalContributions']
 
 
 def calc_today_start_and_end():
@@ -66,4 +73,5 @@ if __name__ == '__main__':
     start, end = calc_today_start_and_end()
 
     client = GithubApiClient(token, username)
-    client.fetch_grass_info(start, end)
+    grass_info = client.fetch_grass_total(start, end)
+    print(grass_info)
