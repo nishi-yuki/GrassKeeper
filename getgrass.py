@@ -65,5 +65,5 @@ if __name__ == '__main__':
     username = os.environ['GITHUB_USERNAME']
     start, end = calc_today_start_and_end()
 
-    client = GithubApiClient(token, username)    
+    client = GithubApiClient(token, username)
     client.fetch_grass_info(start, end)
