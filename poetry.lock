@@ -26,6 +26,14 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "invoke"
+version = "1.7.3"
+description = "Pythonic task execution"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "requests"
 version = "2.28.1"
 description = "Python HTTP for Humans."
@@ -59,11 +67,12 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "4adb06e4b6223623742752ed45dffc1f8380967ddc024ef546311f8a777d070b"
+content-hash = "f1b42b7ed4f28afc06206bd83514146ea5d83be4485a7b1132f45c852ab1a536"
 
 [metadata.files]
 certifi = []
 charset-normalizer = []
 idna = []
+invoke = []
 requests = []
 urllib3 = []
