@@ -1,3 +1,6 @@
 .env
 result.json
 dist/
+node_modules/
+# Serverless directories
+.serverless
