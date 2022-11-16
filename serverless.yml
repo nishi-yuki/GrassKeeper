@@ -1,0 +1,25 @@
+service: GrassKeeper
+frameworkVersion: '3'
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: python3.9
+
+functions:
+  grasskeeper:
+    handler: grasskeeper.handler
+    environment:
+      DISCORD_WEBHOOK_ID: ${env:DISCORD_WEBHOOK_ID}
+      DISCORD_WEBHOOK_TOKEN: ${env:DISCORD_WEBHOOK_TOKEN}
+      GITHUB_TOKEN: ${env:GITHUB_TOKEN}
+      GITHUB_USERNAME: ${env:GITHUB_USERNAME}
+    events:
+      - schedule: cron(0 1,6,11 * * ? *)
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    usePoetry: true
