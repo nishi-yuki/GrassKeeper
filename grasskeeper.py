@@ -2,8 +2,11 @@ from datetime import datetime, date, time, timezone, timedelta
 import os
 import json
 import requests
+import traceback
+import textwrap
 
 
+APP_NAME = 'grasskeeper'
 TZ_INFO = timezone(timedelta(hours=9))
 
 
@@ -29,6 +32,7 @@ class GithubApiClient:
       }
     }
     '''
+    graphql_error_key = 'errors'
 
     def __init__(self, token, username):
         self.headers = {'Authorization': 'bearer ' + token}
@@ -41,9 +45,14 @@ class GithubApiClient:
 
         res = requests.post(self.endpoint, headers=self.headers,
                             data=json.dumps(payload))
-        res = res.json()
-        # print(json.dumps(res, indent=2))
-        return res
+        if res.status_code != 200:
+            raise Exception(res.status_code, res.text)
+
+        res_json = res.json()
+
+        if self.graphql_error_key in res_json: # GraphQL error
+            raise Exception(res_json[self.graphql_error_key])
+        return res_json
 
     def fetch_grass_total(self, fromdate, todate):
         res = self.fetch_grass_info(fromdate, todate)
@@ -75,29 +84,51 @@ class DiscordWebhookClient:
             raise Exception('Failed to send message')
 
 
+class ErrorNotifier:
+    def __init__(self, notifier):
+        self.notifier = notifier
+
+    def send_exception(self, e):
+        f = '''
+        **[{}] エラーが発生しました**
+        `{}`
+        ```{}```
+        '''
+        f = textwrap.dedent(f[1:-1])
+        content = f.format(APP_NAME, repr(e), traceback.format_exc())
+        print(content)
+        self.notifier.send(content)
+
+
 def main():
     ENV = os.environ.get('ENV', 'dev').lower()
 
     token = os.environ['GITHUB_TOKEN']
     username = os.environ['GITHUB_USERNAME']
+    github_client = GithubApiClient(token, username)
+
+    webhook_id = os.environ['DISCORD_WEBHOOK_ID']
+    webhook_token = os.environ['DISCORD_WEBHOOK_TOKEN']
+    discord_client = DiscordWebhookClient(webhook_id, webhook_token)
+
+    error_notifier = ErrorNotifier(discord_client)
 
     today = datetime.now(tz=TZ_INFO).date()
     start, end = calc_day_start_and_end(day=today, tzinfo=TZ_INFO)
     print(f'[*] Fetching grass info from {start} to {end}')
 
-    client = GithubApiClient(token, username)
-    grass_info = client.fetch_grass_total(start, end)
+    try:
+        grass_info = github_client.fetch_grass_total(start, end)
+    except Exception as e:
+        error_notifier.send_exception(e)
+        raise e
     print(f'[*] grass_info: {grass_info}')
 
-    webhook_id = os.environ['DISCORD_WEBHOOK_ID']
-    webhook_token = os.environ['DISCORD_WEBHOOK_TOKEN']
-    client = DiscordWebhookClient(webhook_id, webhook_token)
-
     if ENV == 'dev':
-        client.send(f'[*] grass_info: {grass_info}')
+        discord_client.send(f'[*] grass_info: {grass_info}')
 
     if grass_info == 0:
-        client.send('今日はまだ草生やしてないよ')
+        discord_client.send('今日はまだ草生やしてないよ')
 
 
 def handler(event, context):
