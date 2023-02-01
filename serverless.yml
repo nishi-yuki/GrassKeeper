@@ -2,9 +2,14 @@ service: GrassKeeper
 frameworkVersion: '3'
 useDotenv: true
 
+params:
+  default:
+    region: 'ap-northeast-1'
+
 provider:
   name: aws
   runtime: python3.9
+  region: ${param:region}
 
 functions:
   grasskeeper:
