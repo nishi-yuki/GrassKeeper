@@ -19,6 +19,7 @@ functions:
       DISCORD_WEBHOOK_TOKEN: ${env:DISCORD_WEBHOOK_TOKEN}
       GITHUB_TOKEN: ${env:GITHUB_TOKEN}
       GITHUB_USERNAME: ${env:GITHUB_USERNAME}
+      ENV: ${sls:stage}
     events:
       - schedule: cron(0 1,6,11 * * ? *)
 
